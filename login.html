@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Login</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<style>
+    * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+        font-family: Arial, sans-serif;
+    }
+
+    body {
+        display: flex;
+        height: 100vh;
+    }
+
+    .hero {
+        flex: 2;
+        background: url('https://images.unsplash.com/photo-1507525428034-b723cf961d3e') no-repeat center center/cover;
+    }
+
+    .login-container {
+        flex: 1;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        background: #f5f5f5;
+    }
+
+    .login-box {
+        background: white;
+        padding: 40px;
+        width: 300px;
+        border-radius: 10px;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        text-align: center;
+    }
+
+    input {
+        width: 100%;
+        padding: 10px;
+        margin: 10px 0;
+        border: 1px solid #ccc;
+        border-radius: 5px;
+    }
+
+    button {
+        width: 100%;
+        padding: 10px;
+        background: #007bff;
+        color: white;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+        margin-top: 10px;
+    }
+
+    button:hover {
+        background: #0056b3;
+    }
+
+    .error {
+        color: red;
+        font-size: 14px;
+        display: none;
+    }
+</style>
+</head>
+
+<body>
+
+<div class="hero"></div>
+
+<div class="login-container">
+    <div class="login-box">
+        <h2>Login</h2>
+        <input type="email" id="email" placeholder="Enter your email" />
+        <div class="error" id="errorMsg"></div>
+        <button onclick="login()">Login</button>
+    </div>
+</div>
+
+<script>
+// 🔁 Auto-login check on page load
+window.onload = function () {
+    const loginStatus = localStorage.getItem('_loginS');
+
+    if (loginStatus === '_ltorguien') {
+        // Already logged in → redirect
+        window.location.href = "home.html";
+    }
+};
+
+function login() {
+    const email = document.getElementById('email').value.trim();
+    const errorMsg = document.getElementById('errorMsg');
+
+    const allowedEmail = "onference@onference.in";
+
+    if (!email || !email.includes('@')) {
+        errorMsg.style.display = 'block';
+        errorMsg.innerText = "Please enter a valid email";
+        return;
+    }
+
+    if (email !== allowedEmail) {
+        errorMsg.style.display = 'block';
+        errorMsg.innerText = "Access denied: Unauthorized email";
+        return;
+    }
+
+    errorMsg.style.display = 'none';
+
+    // Store login key
+    localStorage.setItem('_loginS', '_ltorguien');
+
+    // Redirect to home
+    window.location.href = "home.html";
+}
+</script>
+
+</body>
+</html>

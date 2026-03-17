@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Home</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<style>
+    * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+    }
+
+    body, html {
+        width: 100%;
+        height: 100%;
+        overflow: hidden;
+        position: relative;
+    }
+
+    .container {
+        width: 100%;
+        height: 100vh;
+        position: relative;
+    }
+
+    .container img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        display: block;
+    }
+
+    /* Red “click here” dot */
+    .click-dot {
+        position: absolute;
+        width: 15px;
+        height: 15px;
+        background: red;
+        border-radius: 50%;
+        z-index: 5;
+        pointer-events: none;
+        animation: pulse 1s infinite;
+    }
+
+    @keyframes pulse {
+        0% { transform: scale(1); opacity: 1; }
+        50% { transform: scale(1.5); opacity: 0.6; }
+        100% { transform: scale(1); opacity: 1; }
+    }
+</style>
+</head>
+
+<body>
+
+<div class="container">
+    <img src="/images/home.png" usemap="#image-map" id="mainImage">
+
+    <map name="image-map">
+        <area href="auditorium_live.html" coords="573,429,973,609" shape="rect">
+        <area coords="114,513,400,750" href="exhibition.html" shape="rect">
+        <area coords="1094,517,1421,750" href="exhibition.html" shape="rect">
+        <area href="https://api.whatsapp.com/send?phone=919930019515&text=Hi!%20I%E2%80%99m%20exploring%20OnferenceTV%20and%20need%20support." coords="611,675,918,850" shape="rect">
+    </map>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/image-map-resizer/1.0.10/js/imageMapResizer.min.js"></script>
+<script>
+// 🔒 Protect page & make image map responsive
+window.onload = function () {
+    const loginStatus = localStorage.getItem('_loginS');
+
+    if (loginStatus !== '_ltorguien') {
+        window.location.href = "login.html";
+        return;
+    }
+
+    imageMapResize(); // resize areas first
+    addClickDots();   // now add dots after resizing
+};
+
+function addClickDots() {
+    const img = document.getElementById('mainImage');
+    const areas = document.querySelectorAll('map[name="image-map"] area');
+
+    areas.forEach(area => {
+        const shape = area.shape;
+
+        if (shape === 'rect') {
+            // After imageMapResize, area.coords are updated to scaled values
+            let coords = area.coords.split(',').map(Number);
+            let [x1, y1, x2, y2] = coords;
+
+            // Center of rectangle
+            const centerX = (x1 + x2) / 2;
+            const centerY = (y1 + y2) / 2;
+
+            // Create dot
+            const dot = document.createElement('div');
+            dot.classList.add('click-dot');
+            document.querySelector('.container').appendChild(dot);
+
+            function positionDot() {
+                // Use the current area.coords (already scaled by imageMapResizer)
+                coords = area.coords.split(',').map(Number);
+                const [nx1, ny1, nx2, ny2] = coords;
+                const cx = (nx1 + nx2) / 2;
+                const cy = (ny1 + ny2) / 2;
+
+                dot.style.left = (cx - 7.5) + 'px';
+                dot.style.top = (cy - 7.5) + 'px';
+            }
+
+            // Initial position
+            positionDot();
+
+            // Reposition on resize
+            window.addEventListener('resize', positionDot);
+        }
+    });
+}
+</script>
+
+</body>
+</html>

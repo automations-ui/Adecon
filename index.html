@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Redirect Check</title>
+    <script>
+        window.onload = function () {
+            // Get value from localStorage
+            const loginStatus = localStorage.getItem('_loginS');
+
+            // Check if value matches required string
+            if (loginStatus === '_ltorguien') {
+                // Valid login → go to home
+                window.location.href = "home.html";
+            } else {
+                // Invalid or missing → go to login
+                window.location.href = "login.html";
+            }
+        };
+    </script>
+</head>
+<body>
+</body>
+</html>

@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Auditorium</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<!-- HLS.js library for M3U8 playback -->
+<script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
+
+<style>
+    * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+    }
+
+    body, html {
+        width: 100%;
+        height: 100%;
+        overflow: hidden;
+        position: relative;
+        font-family: Arial, sans-serif;
+    }
+
+    .container {
+        width: 100%;
+        height: 100vh;
+        position: relative;
+    }
+
+    .container img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        display: block;
+    }
+
+    /* Video overlay in mapped area */
+    #videoPlayer {
+        position: absolute;
+        display: none; /* hidden until positioned */
+        z-index: 2;
+        border: 2px solid #fff;
+        box-shadow: 0 0 10px rgba(0,0,0,0.5);
+        background: black;
+    }
+</style>
+</head>
+
+<body>
+
+<div class="container">
+    <img src="images/auditorium.png" usemap="#image-map">
+    <map name="image-map">
+        <!-- Area where video appears -->
+        <area coords="470,200,1068,620" shape="rect" id="videoArea">
+    </map>
+
+    <!-- Video element -->
+    <video id="videoPlayer" controls autoplay muted></video>
+</div>
+
+<script>
+// 🔒 Login protection
+window.onload = function () {
+    const loginStatus = localStorage.getItem('_loginS');
+    if (loginStatus !== '_ltorguien') {
+        window.location.href = "login.html";
+        return;
+    }
+
+    setupVideo();
+};
+
+function setupVideo() {
+    const videoPlayer = document.getElementById('videoPlayer');
+    const videoArea = document.getElementById('videoArea');
+    const containerImg = document.querySelector('.container img');
+
+    // Scale coordinates from original image to current size
+    function scaleCoords() {
+        const coords = videoArea.coords.split(',').map(Number);
+        const imgWidth = containerImg.width;
+        const imgHeight = containerImg.height;
+
+        const originalWidth = containerImg.naturalWidth;
+        const originalHeight = containerImg.naturalHeight;
+
+        const scaleX = imgWidth / originalWidth;
+        const scaleY = imgHeight / originalHeight;
+
+        return coords.map((c, i) => i % 2 === 0 ? c * scaleX : c * scaleY);
+    }
+
+    function positionVideo() {
+        const [x1, y1, x2, y2] = scaleCoords();
+        videoPlayer.style.left = x1 + 'px';
+        videoPlayer.style.top = y1 + 'px';
+        videoPlayer.style.width = (x2 - x1) + 'px';
+        videoPlayer.style.height = (y2 - y1) + 'px';
+        videoPlayer.style.display = 'block';
+    }
+
+    // Position video initially
+    positionVideo();
+
+    // Auto-play recorded HLS URL
+    const videoSrc = 'https://vz-cea98c59-23c.b-cdn.net/c309129c-27b6-4e43-8254-62a15c77c5ee/842x480/video.m3u8'; // replace with your HLS URL
+
+    if (Hls.isSupported()) {
+        const hls = new Hls();
+        hls.loadSource(videoSrc);
+        hls.attachMedia(videoPlayer);
+        hls.on(Hls.Events.MANIFEST_PARSED, function() {
+            videoPlayer.play();
+        });
+    } else if (videoPlayer.canPlayType('application/vnd.apple.mpegurl')) {
+        videoPlayer.src = videoSrc;
+        videoPlayer.play();
+    }
+
+    // Reposition video on window resize
+    window.addEventListener('resize', positionVideo);
+}
+</script>
+
+</body>
+</html>
