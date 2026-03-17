@@ -33,6 +33,24 @@
         height:50px;
         display:block;
     }
+
+    /* 🔴 Blinking Red Dot */
+    .red-dot {
+        position: absolute;
+        width: 14px;
+        height: 14px;
+        background-color: red;
+        border-radius: 50%;
+        z-index: 10;
+        pointer-events: none;
+        animation: blink 1s infinite;
+    }
+
+    @keyframes blink {
+        0% { opacity: 1; transform: scale(1); }
+        50% { opacity: 0.2; transform: scale(1.5); }
+        100% { opacity: 1; transform: scale(1); }
+    }
 </style>
 </head>
 
@@ -45,6 +63,9 @@
     <map name="image-map">
         <area href="stall.html" coords="628,375,908,630" shape="rect">
     </map>
+
+    <!-- 🔴 Red Dot -->
+    <div class="red-dot"></div>
 
     <!-- Footer Image -->
     <div class="footer-container">
@@ -68,16 +89,43 @@ window.onload = function() {
         return;
     }
 
-    // Make all image maps responsive
+    // Make image maps responsive
     imageMapResize();
 
-    // Logout functionality
+    // Logout
     const logoutArea = document.getElementById('logoutArea');
     logoutArea.addEventListener('click', function(e){
         e.preventDefault();
         localStorage.removeItem('_loginS');
         window.location.href = "login.html";
     });
+
+    // 🔴 Red Dot Logic
+    const dot = document.querySelector('.red-dot');
+    const img = document.getElementById('exhibitionImg');
+
+    const coords = [628,375,908,630];
+    const centerX = (coords[0] + coords[2]) / 2;
+    const centerY = (coords[1] + coords[3]) / 2;
+
+    function positionDot() {
+        const rect = img.getBoundingClientRect();
+
+        const scaleX = rect.width / img.naturalWidth;
+        const scaleY = rect.height / img.naturalHeight;
+
+        dot.style.left = (rect.left + centerX * scaleX - 7) + 'px';
+        dot.style.top = (rect.top + centerY * scaleY - 7) + 'px';
+    }
+
+    // Ensure image is loaded before positioning
+    if (img.complete) {
+        positionDot();
+    } else {
+        img.onload = positionDot;
+    }
+
+    window.addEventListener('resize', positionDot);
 };
 </script>
 
