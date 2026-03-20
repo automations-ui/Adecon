@@ -63,6 +63,14 @@
         background: #0056b3;
     }
 
+    .register-btn {
+        background: #28a745;
+    }
+
+    .register-btn:hover {
+        background: #1e7e34;
+    }
+
     .error {
         color: red;
         font-size: 14px;
@@ -81,45 +89,73 @@
         <input type="email" id="email" placeholder="Enter your email" />
         <div class="error" id="errorMsg"></div>
         <button onclick="login()">Login</button>
+
+        <!-- ✅ Register Button -->
+        <button class="register-btn" onclick="register()">Register</button>
     </div>
 </div>
-
 <script>
 // 🔁 Auto-login check on page load
 window.onload = function () {
     const loginStatus = localStorage.getItem('_loginS');
 
     if (loginStatus === '_ltorguien') {
-        // Already logged in → redirect
         window.location.href = "home.html";
     }
 };
-
-function login() {
+async function login() {
     const email = document.getElementById('email').value.trim();
     const errorMsg = document.getElementById('errorMsg');
 
-    const allowedEmail = "onference@onference.in";
-
+    // Basic validation
     if (!email || !email.includes('@')) {
         errorMsg.style.display = 'block';
         errorMsg.innerText = "Please enter a valid email";
         return;
     }
 
-    if (email !== allowedEmail) {
-        errorMsg.style.display = 'block';
-        errorMsg.innerText = "Access denied: Unauthorized email";
-        return;
-    }
-
     errorMsg.style.display = 'none';
 
-    // Store login key
-    localStorage.setItem('_loginS', '_ltorguien');
+    try {
+        // 🔥 API CALL
+        const response = await fetch("https://sapi.onference.in/UsersApi/checkPaymentStatus", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({ email: email })
+        });
 
-    // Redirect to home
-    window.location.href = "home.html";
+        const data = await response.json();
+
+        console.log("API Response:", data);
+
+        // ✅ Allow login only if payment is done
+        if (data.paymentStatus && data.paymentStatus !== "payment not done") {
+            // Store login flag
+            localStorage.setItem('_loginS', '_ltorguien');
+
+            // ✅ Store user's email from response
+            if (data.userData && data.userData.length > 0) {
+                localStorage.setItem('userEmail', data.userData[0].email);
+            }
+
+            window.location.href = "home.html";
+        } else {
+            // ❌ Redirect if payment not done
+            window.location.href = "https://adecon2026-registration.onrender.com/";
+        }
+
+    } catch (error) {
+        console.error("Error:", error);
+        errorMsg.style.display = 'block';
+        errorMsg.innerText = "Unable to verify payment. Try again.";
+    }
+}
+
+// ✅ Register redirect
+function register() {
+    window.location.href = "https://adecon2026-registration.onrender.com/";
 }
 </script>
 

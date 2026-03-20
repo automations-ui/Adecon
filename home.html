@@ -1,251 +1,168 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
+<meta charset="UTF-8" />
 <title>Home</title>
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
 <style>
-* {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
-}
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { overflow: hidden; font-family: Arial, sans-serif; }
 
-body, html {
-    width: 100%;
-    height: 100%;
-    overflow: hidden;
+  .container {
     position: relative;
-}
-
-.container {
-    width: 100%;
+    width: 100vw;
     height: 100vh;
-    position: relative;
-}
+    overflow: hidden;
+  }
 
-.container img {
+  .container img {
     width: 100%;
     height: 100%;
     object-fit: cover;
     display: block;
-}
+  }
 
-/* EXISTING DOTS (UNCHANGED) */
-.click-dot {
+  .click-dot {
     position: absolute;
-    width: 15px;
-    height: 15px;
+    width: 16px;
+    height: 16px;
     background: red;
     border-radius: 50%;
-    z-index: 5;
+    transform: translate(-50%, -50%);
     pointer-events: none;
-    animation: pulse 1s infinite;
-}
-
-/* NEW AGENDA DOTS */
-.agenda-wrapper {
-    position: absolute;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
     z-index: 10;
-    cursor: pointer;
-}
-
-.agenda-dot {
-    width: 18px;
-    height: 18px;
-    background: red;
-    border-radius: 50%;
     animation: pulse 1s infinite;
-}
+    box-shadow: 0 0 10px rgba(255,0,0,0.7);
+  }
 
-.agenda-label {
-    margin-top: 6px;
-    padding: 3px 8px;
-    font-size: 13px;
-    font-weight: bold;
-    color: #fff;
-    background: rgba(0,0,0,0.75);
-    border-radius: 5px;
-    white-space: nowrap;
-    box-shadow: 0 0 10px rgba(255,255,255,0.8);
-}
+  @keyframes pulse {
+    0% { transform: scale(1) translate(-50%, -50%); }
+    50% { transform: scale(1.5) translate(-50%, -50%); }
+    100% { transform: scale(1) translate(-50%, -50%); }
+  }
 
-@keyframes pulse {
-    0% { transform: scale(1); opacity: 1; }
-    50% { transform: scale(1.5); opacity: 0.6; }
-    100% { transform: scale(1); opacity: 1; }
-}
-
-/* PDF MODAL */
-.pdf-modal {
+  .pdf-modal {
     position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
+    inset: 0;
     background: rgba(0,0,0,0.7);
     display: none;
     justify-content: center;
     align-items: center;
     z-index: 999;
-}
+  }
 
-.pdf-content {
+  .pdf-content {
     width: 80%;
     height: 80%;
     background: #fff;
     border-radius: 10px;
     overflow: hidden;
     position: relative;
-}
+  }
 
-.pdf-content iframe {
+  .pdf-content iframe {
     width: 100%;
     height: 100%;
     border: none;
-}
+  }
 
-.close-btn {
+  .close-btn {
     position: absolute;
     top: 10px;
     right: 15px;
     background: red;
     color: #fff;
     border: none;
-    font-size: 18px;
     padding: 5px 10px;
     cursor: pointer;
-    border-radius: 5px;
-    z-index: 10;
-}
+  }
 </style>
 </head>
 
 <body>
-
 <div class="container">
-    <img src="https://s3.ap-south-1.amazonaws.com/cdn2.onference.in/testepisodethumbnail/home.png" usemap="#image-map" id="mainImage">
+  <img
+    id="mainImage"
+    src="https://s3.ap-south-1.amazonaws.com/cdn2.onference.in/testepisodethumbnail/Lobby+design+with+agenda.png"
+    usemap="#image-map"
+    alt="Lobby Design with Agenda"
+  />
 
-    <map name="image-map">
-        <area href="auditorium_live.html" coords="573,429,973,609" shape="rect">
-        <area coords="114,513,400,750" href="exhibition.html" shape="rect">
-        <area coords="1094,517,1421,750" href="exhibition.html" shape="rect">
-        <area href="https://api.whatsapp.com/send?phone=919930019515&text=Hi!%20I%E2%80%99m%20exploring%20OnferenceTV%20and%20need%20support." coords="611,675,918,850" shape="rect">
-    </map>
+  <map name="image-map">
+    <area href="exhibition.html" coords="2000,6599,7037,9495" shape="rect">
+    <area href="auditorium_recorded.html" coords="10050,5468,16640,9213" shape="rect">
+    <area href="exhibition.html" coords="18923,6481,24643,9472" shape="rect">
+    <area href="#" class="agenda-area" data-pdf-url="https://s3.ap-south-1.amazonaws.com/cdn2.onference.in/testepisodethumbnail/USERGUIDE+ADECON.pdf" coords="7555,11497,9791,13310" shape="rect">
+    <area href="#" class="agenda-area" data-pdf-url="https://s3.ap-south-1.amazonaws.com/cdn2.onference.in/testepisodethumbnail/USERGUIDE+ADECON.pdf" coords="16970,11356,18994,13098" shape="rect">
+    <area coords="10238,9660,16264,12604" shape="rect">
+  </map>
 </div>
 
-<!-- PDF VIEWER -->
 <div class="pdf-modal" id="pdfModal">
-    <div class="pdf-content">
-        <button class="close-btn" onclick="closePDF()">✖</button>
-        <iframe id="pdfFrame"></iframe>
-    </div>
+  <div class="pdf-content">
+    <button class="close-btn" onclick="closePDF()">✖</button>
+    <iframe id="pdfFrame"></iframe>
+  </div>
 </div>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/image-map-resizer/1.0.10/js/imageMapResizer.min.js"></script>
 
 <script>
-window.onload = function () {
-    const loginStatus = localStorage.getItem('_loginS');
+  // Check login
+  if (localStorage.getItem("_loginS") !== "_ltorguien") {
+    window.location.href = "login.html";
+  }
 
-    if (loginStatus !== '_ltorguien') {
-        window.location.href = "login.html";
-        return;
-    }
+  // Open PDF modal
+  function openPDF(url) {
+    document.getElementById("pdfFrame").src = url;
+    document.getElementById("pdfModal").style.display = "flex";
+  }
 
-    addBottomDots();   // ✅ Agenda dots
-    imageMapResize();  
-    addClickDots();    // ✅ your original dots
-};
+  function closePDF() {
+    document.getElementById("pdfModal").style.display = "none";
+    document.getElementById("pdfFrame").src = "";
+  }
 
-// OPEN PDF
-function openPDF() {
-    const pdfURL = "https://s3.ap-south-1.amazonaws.com/cdn2.onference.in/testepisodethumbnail/USERGUIDE+ADECON.pdf";
-    document.getElementById('pdfFrame').src = pdfURL;
-    document.getElementById('pdfModal').style.display = 'flex';
-}
+  // Attach PDF click for agenda areas
+  function attachAgendaHandlers() {
+    document.querySelectorAll("area.agenda-area").forEach(area => {
+      area.addEventListener("click", e => {
+        e.preventDefault();
+        openPDF(area.dataset.pdfUrl);
+      });
+    });
+  }
 
-// CLOSE PDF
-function closePDF() {
-    document.getElementById('pdfModal').style.display = 'none';
-    document.getElementById('pdfFrame').src = "";
-}
+  window.onload = function() {
+    imageMapResize();
+    attachAgendaHandlers();
+    addStaticDots();
+  };
 
-// ✅ NEW: Agenda dots (does NOT affect existing dots)
-function addBottomDots() {
-    const container = document.querySelector('.container');
+  // Add static red dots at center of each clickable area
+  function addStaticDots() {
+    const container = document.querySelector(".container");
 
-    const positions = [
-        { xPercent: 35, yPercent: 95 },
-        { xPercent: 70, yPercent: 95 }
+    // Set static positions manually for visual center
+    const dotPositions = [
+      { x: 400, y: 335 },   // Exhibition
+      { x: 750, y: 350 },   // Auditorium
+      { x: 1400, y: 335 },  // Exhibition 2
+      { x: 500, y: 680 },   // Agenda Day 1
+      { x: 1025, y: 675 },   // Agenda Day 2
+      { x: 760, y: 600 }    // Other area
     ];
 
-    positions.forEach(pos => {
-        const wrapper = document.createElement('div');
-        wrapper.classList.add('agenda-wrapper');
-
-        const dot = document.createElement('div');
-        dot.classList.add('agenda-dot');
-
-        const label = document.createElement('div');
-        label.classList.add('agenda-label');
-        label.innerText = "Agenda";
-
-        wrapper.appendChild(dot);
-        wrapper.appendChild(label);
-
-        wrapper.addEventListener('click', openPDF);
-
-        container.appendChild(wrapper);
-
-        function positionDot() {
-            const rect = container.getBoundingClientRect();
-
-            const x = (pos.xPercent / 100) * rect.width;
-            const y = (pos.yPercent / 100) * rect.height;
-
-            wrapper.style.left = (x - 25) + 'px';
-            wrapper.style.top = (y - 25) + 'px';
-        }
-
-        positionDot();
-        window.addEventListener('resize', positionDot);
+    dotPositions.forEach(pos => {
+      const dot = document.createElement("div");
+      dot.className = "click-dot";
+      dot.style.left = pos.x + "px";
+      dot.style.top = pos.y + "px";
+      container.appendChild(dot);
     });
-}
-
-// ✅ ORIGINAL DOTS (UNCHANGED)
-function addClickDots() {
-    const areas = document.querySelectorAll('map[name="image-map"] area');
-
-    areas.forEach(area => {
-        if (area.shape === 'rect') {
-            let coords = area.coords.split(',').map(Number);
-
-            const dot = document.createElement('div');
-            dot.classList.add('click-dot');
-            document.querySelector('.container').appendChild(dot);
-
-            function positionDot() {
-                coords = area.coords.split(',').map(Number);
-                const [x1, y1, x2, y2] = coords;
-
-                const cx = (x1 + x2) / 2;
-                const cy = (y1 + y2) / 2;
-
-                dot.style.left = (cx - 7.5) + 'px';
-                dot.style.top = (cy - 7.5) + 'px';
-            }
-
-            positionDot();
-            window.addEventListener('resize', positionDot);
-        }
-    });
-}
+  }
 </script>
-
 </body>
 </html>

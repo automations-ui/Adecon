@@ -5,91 +5,160 @@
 <title>Auditorium</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<!-- HLS.js library for M3U8 playback -->
+<!-- HLS.js for M3U8 playback -->
 <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
 
+<!-- Font Awesome CDN for icons -->
+<link
+  rel="stylesheet"
+  href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+/>
+
 <style>
-    * {
-        margin: 0;
-        padding: 0;
-        box-sizing: border-box;
-    }
+  * { margin:0; padding:0; box-sizing:border-box; }
+  html, body { width:100%; height:100%; overflow:hidden; font-family: Arial, sans-serif; }
 
-    body, html {
-        width: 100%;
-        height: 100%;
-        overflow: hidden;
-        position: relative;
-        font-family: Arial, sans-serif;
-    }
+  .container { width:100%; height:100vh; position: relative; }
 
-    .container {
-        width: 100%;
-        height: 100vh;
-        position: relative;
-    }
+  /* Background image fills viewport */
+  .container img.background {
+    width: 100%;
+    height: 100vh;
+    object-fit: cover;
+    object-position: center 80%;
+    display: block;
+  }
 
-    .container img {
-        width: 100%;
-        height: 100%;
-        object-fit: cover;
-        display: block;
-    }
+  /* Video player over image */
+  #videoPlayer {
+      position:absolute;
+      display:block;
+      z-index:2;
+      border:2px solid #fff;
+      box-shadow:0 0 10px rgba(0,0,0,0.5);
+      background:black;
+  }
 
-    /* Video overlay in mapped area */
-    #videoPlayer {
-        position: absolute;
-        display: none; /* hidden until positioned */
-        z-index: 2;
-        border: 2px solid #fff;
-        box-shadow: 0 0 10px rgba(0,0,0,0.5);
-        background: black;
-    }
+  /* Collapsible Footer Styles */
+  .footer-bar {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    background: rgba(255,255,255,0.95);
+    border-top: 1px solid #ddd;
+    z-index: 10;
+    transition: transform 0.3s ease-in-out;
+  }
+  .footer-bar.collapsed {
+    transform: translateY(90%);
+  }
+
+  .footer-toggle {
+    position: absolute;
+    top: -25px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: #2a4d7d;
+    color: white;
+    padding: 5px 12px;
+    border-radius: 12px 12px 0 0;
+    cursor: pointer;
+    font-weight: bold;
+    z-index: 11;
+  }
+
+  .component-bar {
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+    padding: 10px 0;
+  }
+  .component-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    cursor: pointer;
+    color: black;
+    text-decoration: none;
+    width: 200px;
+    font-weight: 500;
+  }
+  .component-item:hover {
+    color: #2a4d7d; /* Dark blue highlight */
+  }
+  .component-item i {
+    font-size: 28px;
+    margin-bottom: 6px;
+  }
+  .exhibition { color: black; }
 </style>
 </head>
 
 <body>
 
 <div class="container">
-    <img src="https://s3.ap-south-1.amazonaws.com/cdn2.onference.in/testepisodethumbnail/auditorium.png" usemap="#image-map">
+    <!-- Background Image -->
+    <img src="https://s3.ap-south-1.amazonaws.com/cdn2.onference.in/testepisodethumbnail/Auditorium+Design.png" 
+         usemap="#image-map" class="background">
+
+    <!-- Video Area -->
     <map name="image-map">
-        <!-- Area where video appears -->
-        <area coords="470,200,1068,620" shape="rect" id="videoArea">
+        <area coords="6378,3444,20171,12321" shape="rect" id="videoArea">
     </map>
 
-    <!-- Video element -->
     <video id="videoPlayer" controls autoplay muted></video>
 </div>
 
+<!-- Collapsible Footer -->
+<div class="footer-bar collapsed" id="footerBar">
+  <div class="footer-toggle" id="footerToggle">▲</div>
+  <div class="component-bar">
+    <a href="#" class="component-item" title="Lobby">
+      <i class="fa-solid fa-house"></i>
+      Lobby
+    </a>
+    <a href="#" class="component-item" title="Auditorium">
+      <i class="fa-solid fa-person-chalkboard"></i>
+      Auditorium
+    </a>
+    <a href="#" class="component-item exhibition" title="Exhibition">
+      <i class="fa-solid fa-landmark"></i>
+      Exhibition
+    </a>
+    <a href="#" class="component-item" title="Ask a Question">
+      <i class="fa-regular fa-comment"></i>
+      Ask a Question
+    </a>
+    <a href="#" class="component-item" title="Logout">
+      <i class="fa-solid fa-arrow-right-from-bracket"></i>
+      Logout
+    </a>
+  </div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/image-map-resizer/1.0.10/js/imageMapResizer.min.js"></script>
 <script>
-// 🔒 Login protection
 window.onload = function () {
-    const loginStatus = localStorage.getItem('_loginS');
-    if (loginStatus !== '_ltorguien') {
+    // Login check
+    if (localStorage.getItem('_loginS') !== '_ltorguien') {
         window.location.href = "login.html";
         return;
     }
 
     setupVideo();
+    setupFooter();
 };
 
 function setupVideo() {
     const videoPlayer = document.getElementById('videoPlayer');
     const videoArea = document.getElementById('videoArea');
-    const containerImg = document.querySelector('.container img');
+    const containerImg = document.querySelector('.container img.background');
 
-    // Scale coordinates from original image to current size
     function scaleCoords() {
         const coords = videoArea.coords.split(',').map(Number);
-        const imgWidth = containerImg.width;
-        const imgHeight = containerImg.height;
-
-        const originalWidth = containerImg.naturalWidth;
-        const originalHeight = containerImg.naturalHeight;
-
-        const scaleX = imgWidth / originalWidth;
-        const scaleY = imgHeight / originalHeight;
-
+        const scaleX = containerImg.width / containerImg.naturalWidth;
+        const scaleY = containerImg.height / containerImg.naturalHeight;
         return coords.map((c, i) => i % 2 === 0 ? c * scaleX : c * scaleY);
     }
 
@@ -99,30 +168,59 @@ function setupVideo() {
         videoPlayer.style.top = y1 + 'px';
         videoPlayer.style.width = (x2 - x1) + 'px';
         videoPlayer.style.height = (y2 - y1) + 'px';
-        videoPlayer.style.display = 'block';
     }
 
-    // Position video initially
     positionVideo();
 
-    // Auto-play recorded HLS URL
-    const videoSrc = 'https://vz-cea98c59-23c.b-cdn.net/c309129c-27b6-4e43-8254-62a15c77c5ee/842x480/video.m3u8'; // replace with your HLS URL
+    const videoSrc = 'https://vz-cea98c59-23c.b-cdn.net/c309129c-27b6-4e43-8254-62a15c77c5ee/842x480/video.m3u8';
 
     if (Hls.isSupported()) {
         const hls = new Hls();
         hls.loadSource(videoSrc);
         hls.attachMedia(videoPlayer);
-        hls.on(Hls.Events.MANIFEST_PARSED, function() {
-            videoPlayer.play();
-        });
+        hls.on(Hls.Events.MANIFEST_PARSED, () => videoPlayer.play());
     } else if (videoPlayer.canPlayType('application/vnd.apple.mpegurl')) {
         videoPlayer.src = videoSrc;
         videoPlayer.play();
     }
 
-    // Reposition video on window resize
     window.addEventListener('resize', positionVideo);
 }
+
+function setupFooter() {
+    const footer = document.getElementById('footerBar');
+    const toggle = document.getElementById('footerToggle');
+
+    // Toggle collapse
+    toggle.addEventListener('click', () => {
+        footer.classList.toggle('collapsed');
+        toggle.textContent = footer.classList.contains('collapsed') ? '▲' : '▼';
+    });
+
+    // Footer navigation
+    const lobbyLink = document.querySelector('.component-item[title="Lobby"]');
+    const auditoriumLink = document.querySelector('.component-item[title="Auditorium"]');
+    const exhibitionLink = document.querySelector('.component-item[title="Exhibition"]');
+    const logoutLink = document.querySelector('.component-item[title="Logout"]');
+
+    lobbyLink.addEventListener('click', () => {
+        window.location.href = 'home.html';
+    });
+
+    auditoriumLink.addEventListener('click', () => {
+        window.location.href = 'auditorium_recorded.html';
+    });
+
+    exhibitionLink.addEventListener('click', () => {
+        window.location.href = 'exhibition.html';
+    });
+
+    logoutLink.addEventListener('click', () => {
+        localStorage.removeItem('_loginS');
+        window.location.href = 'login.html';
+    });
+}
+
 </script>
 
 </body>
