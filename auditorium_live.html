@@ -173,8 +173,32 @@ window.onload = function () {
     window.location.href = "login.html";
     return;
   }
+
+  // ✅ Track view (LIVE page)
+  trackView();
+
   setupVideo();
 };
+
+function trackView() {
+  const user = localStorage.getItem('userEmail');
+
+  if (!user) return;
+
+  fetch("https://adecon-backend.onrender.com/api/user/activity", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify({
+      user: user,
+      viewTime: true
+    })
+  })
+  .catch(err => {
+    console.error("View tracking failed:", err);
+  });
+}
 
 function setupVideo() {
   const videoPlayer = document.getElementById('videoPlayer');
