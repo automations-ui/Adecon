@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8" />
-<title>Home</title>
+<title>Adecon 2026 - Home</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
 <style>
@@ -20,7 +20,9 @@ body { overflow:hidden; font-family: Arial, sans-serif; }
   z-index:9999;
   color:white;
 }
-
+area {
+  cursor: pointer;
+}
 .spinner {
   width:50px;
   height:50px;
@@ -45,17 +47,6 @@ body { overflow:hidden; font-family: Arial, sans-serif; }
   width:100%;
   height:100%;
   object-fit:cover;
-}
-
-/* Red dots */
-.click-dot {
-  position:absolute;
-  width:16px;
-  height:16px;
-  background:red;
-  border-radius:50%;
-  transform:translate(-50%,-50%);
-  z-index:10;
 }
 
 /* Modal */
@@ -107,31 +98,38 @@ body { overflow:hidden; font-family: Arial, sans-serif; }
   </div>
 </div>
 
-<!-- 🌐 Content -->
+<!-- 🌐 Main UI -->
 <div class="container">
   <img
-    src="https://s3.ap-south-1.amazonaws.com/cdn2.onference.in/testepisodethumbnail/Lobby+design+with+agenda.png"
+    src="https://s3.ap-south-1.amazonaws.com/cdn2.onference.in/testepisodethumbnail/Lobby+Design_2.png"
     usemap="#image-map"
   />
 
   <map name="image-map">
-    <area href="exhibition.html" coords="2000,6599,7037,9495" shape="rect">
-    <area href="auditorium_live.html" coords="10050,5468,16640,9213" shape="rect">
-    <area href="exhibition.html" coords="18923,6481,24643,9472" shape="rect">
 
+    <!-- Exhibition -->
+    <area href="exhibition.html" coords="193,400,720,750" shape="rect">
+
+    <!-- Auditorium -->
+    <area href="auditorium_live.html" coords="1185,400,1730,750" shape="rect">
+
+    <!-- Day 1 Agenda -->
     <area class="agenda-area"
-      data-url="https://s3.ap-south-1.amazonaws.com/cdn2.onference.in/testepisodethumbnail/USERGUIDE+ADECON.pdf"
-      coords="7555,11497,9791,13310" shape="rect">
+      data-url="https://s3.ap-south-1.amazonaws.com/cdn2.onference.in/testepisodethumbnail/Agenda+DAy+1.pdf"
+      coords="554,880,707,1025" shape="rect">
 
+    <!-- Day 2 Agenda -->
     <area class="agenda-area"
-      data-url="https://s3.ap-south-1.amazonaws.com/cdn2.onference.in/testepisodethumbnail/USERGUIDE+ADECON.pdf"
-      coords="16970,11356,18994,13098" shape="rect">
+      data-url="https://s3.ap-south-1.amazonaws.com/cdn2.onference.in/testepisodethumbnail/Agenda+DAy+2.pdf"
+      coords="1219,865,1361,1025" shape="rect">
 
-    <area id="askArea" coords="10238,9660,16264,12604" shape="rect">
+    <!-- Help Desk -->
+    <area id="askArea" coords="768,670,1161,950" shape="rect">
+
   </map>
 </div>
 
-<!-- Modal -->
+<!-- 📄 Modal -->
 <div class="modal" id="modal">
   <div class="modal-content">
     <button class="close-btn" onclick="closeModal()">✖</button>
@@ -143,30 +141,14 @@ body { overflow:hidden; font-family: Arial, sans-serif; }
 
 <script>
 
-/* 🧪 TEST MODE */
-function isTestMode() {
-  const params = new URLSearchParams(window.location.search);
-  return params.get("value") === "test";
-}
-
 /* 🔐 AUTH */
 async function checkAuth() {
-
-  if (isTestMode()) {
-    console.warn("⚠️ Test mode enabled → bypassing auth");
-    hideLoader();
-    return true;
-  }
-
-  const minDelay = new Promise(res => setTimeout(res, 1500));
-
   try {
-    const fetchPromise = fetch("https://adecon-backend-8y4v.onrender.com/api/auth/status", {
-      method: "GET",
+    const res = await fetch("https://adecon-backend-8y4v.onrender.com/api/auth/status", {
       credentials: "include"
-    }).then(res => res.json());
+    });
 
-    const [data] = await Promise.all([fetchPromise, minDelay]);
+    const data = await res.json();
 
     if (data.message === "User authenticated") {
       hideLoader();
@@ -174,13 +156,11 @@ async function checkAuth() {
     } else {
       redirectToLogin();
     }
-
-  } catch (err) {
+  } catch {
     redirectToLogin();
   }
 }
 
-/* Helpers */
 function hideLoader() {
   document.getElementById("authLoader").style.display = "none";
 }
@@ -213,37 +193,40 @@ function attachAgendaHandlers() {
   });
 }
 
-/* Ask Query */
+/* 🧠 Build Prefilled Google Form URL */
+function buildPrefilledFormURL() {
+  const email = encodeURIComponent(localStorage.getItem("email") || "");
+  const fullname = encodeURIComponent(localStorage.getItem("fullname") || "");
+  const mobileno = encodeURIComponent(localStorage.getItem("mobileno") || "");
+  const city = encodeURIComponent(localStorage.getItem("city") || "");
+  const state = encodeURIComponent(localStorage.getItem("state") || "");
+  const country = encodeURIComponent(localStorage.getItem("country") || "");
+
+  return `https://docs.google.com/forms/d/e/1FAIpQLSfe6pbQgIeUB9IuiiJ-vq6xpTIcpMSxiOIyhk8MI-2H8RbjYw/viewform?usp=pp_url
+  &entry.543970567=${fullname}
+  &entry.385469749=
+  &entry.57364819=${mobileno}
+  &entry.880130637=${email}
+  &entry.342698872=${city}
+  &entry.745321921=${state}
+  &entry.1903990537=${country}`.replace(/\s+/g, "");
+}
+
+/* Help Desk */
 function setupAskFeature() {
   const askArea = document.getElementById("askArea");
 
   askArea.addEventListener("click", e => {
     e.preventDefault();
-    openModal("https://forms.gle/N43Ma86NZwu17cAb7");
+    const url = buildPrefilledFormURL();
+    openModal(url);
   });
 }
 
-/* Dots */
-function addStaticDots() {
-  const container = document.querySelector(".container");
-
-  const dots = [
-    { x: 400, y: 335 },
-    { x: 750, y: 350 },
-    { x: 1400, y: 335 },
-    { x: 500, y: 680 },
-    { x: 1025, y: 675 },
-    { x: 760, y: 600 }
-  ];
-
-  dots.forEach(pos => {
-    const d = document.createElement("div");
-    d.className = "click-dot";
-    d.style.left = pos.x + "px";
-    d.style.top = pos.y + "px";
-    container.appendChild(d);
-  });
-}
+/* ESC close */
+window.addEventListener("keydown", e => {
+  if (e.key === "Escape") closeModal();
+});
 
 /* INIT */
 document.addEventListener("DOMContentLoaded", async () => {
@@ -252,9 +235,9 @@ document.addEventListener("DOMContentLoaded", async () => {
 
   attachAgendaHandlers();
   setupAskFeature();
-  addStaticDots();
 });
 
+/* Responsive fix */
 window.onload = function() {
   imageMapResize();
 };
