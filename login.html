@@ -15,41 +15,43 @@
     font-family: "Poppins", sans-serif;
 }
 
+html, body {
+    height: 100%;
+}
+
+/* MAIN LAYOUT */
 body {
-    margin: 0;
-    padding: 0;
-    height: 100vh;
-    width: 100vw;
     display: flex;
-    overflow: hidden; /* Prevents unwanted scrollbars */
+    flex-direction: column;
+    min-height: 100%;
     background: #f4f7fb;
 }
 
+/* HERO IMAGE */
 .hero {
-    height: 100vh; /* Force height to match viewport */
-    flex: 0 0 auto; 
-    display: flex;
-    align-items: center; /* Vertical alignment */
-    justify-content: center; /* Horizontal alignment */
+    width: 100%;
+    height: 220px;
 }
 
 .hero img {
-    height: 100%; /* Image fills full height of the container */
-    width: auto;
-    display: block; /* Removes any potential vertical whitespace caused by inline display */
-    object-fit: cover; /* Ensures no white space inside the image container */
+    width: 100%;
+    height: 100%;
+    object-fit: fill;
+    display: block;
 }
 
+/* LOGIN */
 .login-container {
-    flex: 1; /* Fills the rest of the screen */
     display: flex;
     justify-content: center;
     align-items: center;
-    background: #f4f7fb; /* Light grey background for the form side */
+    padding: 30px 15px;
 }
 
 .login-box {
-    width: 320px;
+    width: 100%;
+    max-width: 320px;
+    min-width: 260px;
     padding: 40px 30px;
     border-radius: 16px;
     background: #fff;
@@ -75,11 +77,12 @@ input:focus {
 
 /* BUTTONS */
 button {
-    padding: 10px 16px;
+    width: 100%;
+    padding: 12px;
     border-radius: 8px;
     cursor: pointer;
     font-size: 14px;
-    margin-top: 8px;
+    margin-top: 10px;
 }
 
 .login-btn {
@@ -114,24 +117,89 @@ button {
     color: red;
     font-size: 12px;
     display: none;
+    margin-bottom: 10px;
 }
 
-/* MOBILE */
-@media (max-width: 900px) {
-    body { 
-        flex-direction: column; 
-        overflow: auto; 
-    }
+/* ===================== */
+/* SMALL TABLETS */
+/* ===================== */
+@media (min-width: 600px) {
     .hero {
-        width: 100%;
-        height: auto;
+        height: 200px;
     }
+}
+
+/* ===================== */
+/* TABLET & DESKTOP */
+/* ===================== */
+@media (min-width: 768px) {
+    body {
+        flex-direction: row;
+    }
+
+    .hero {
+        flex: 1.1;
+        height: auto;
+        min-height: 100%;
+        min-width: 40%;
+        max-width: 65%;
+        display: flex;
+    }
+
     .hero img {
-        width: 100%;
-        height: auto;
+        height: 100%;
     }
+
     .login-container {
-        padding: 40px 20px;
+        flex: 1;
+        padding: 20px;
+    }
+}
+
+/* ===================== */
+/* 💡 MOBILE LANDSCAPE FIX */
+/* ===================== */
+@media (max-height: 500px) and (orientation: landscape) {
+    body {
+        flex-direction: row; /* switch to side layout */
+    }
+
+    .hero {
+        flex: 1;
+        height: auto;
+        min-height: 100%;
+    }
+
+    .hero img {
+        height: 100%;
+    }
+
+    .login-container {
+        flex: 1;
+        padding: 10px;
+        align-items: center;
+    }
+
+    .login-box {
+        padding: 20px;
+        max-width: 280px;
+    }
+
+    input {
+        padding: 10px;
+    }
+
+    button {
+        padding: 10px;
+    }
+}
+
+/* ===================== */
+/* LARGE SCREENS */
+/* ===================== */
+@media (min-width: 1200px) {
+    .hero {
+        flex: 1.2;
     }
 }
 </style>
@@ -140,7 +208,7 @@ button {
 <body>
 
 <div class="hero">
-    <img src="https://s3.ap-south-1.amazonaws.com/cdn2.onference.in/testepisodethumbnail/Login+Page+Adecon+Banner%402x.png" alt="Adecon Banner">
+    <img src="https://s3.ap-south-1.amazonaws.com/cdn2.onference.in/testepisodethumbnail/Login+Page+Adecon+Banner2x+(1).png" alt="Adecon Banner">
 </div>
 
 <div class="login-container">
@@ -162,20 +230,18 @@ button {
 </div>
 
 <script>
-// Grab elements globally for simplicity
+// same JS (unchanged)
 const email = document.getElementById('email');
 const errorMsg = document.getElementById('errorMsg');
 const loginBtn = document.getElementById('loginBtn');
 const btnText = document.getElementById('btnText');
 const btnLoader = document.getElementById('btnLoader');
 
-// Auto redirect if logged in
 window.onload = async () => {
     try {
         const res = await fetch("https://adecon-backend-8y4v.onrender.com/api/auth/status", {
             credentials: "include"
         });
-
         const data = await res.json();
         if (data.message === "User authenticated") {
             location.href = "home.html";
@@ -183,7 +249,6 @@ window.onload = async () => {
     } catch {}
 };
 
-// Enter key support
 email.addEventListener("keypress", e => {
     if (e.key === "Enter") login();
 });
@@ -192,12 +257,11 @@ async function login() {
     const emailVal = email.value.trim();
 
     if (!emailVal.includes('@')) {
-        errorMsg.style.display = 'block';
-        errorMsg.innerText = "Enter valid email";
+        showError("Enter valid email");
         return;
     }
 
-    errorMsg.style.display = 'none'; // Clear previous errors
+    errorMsg.style.display = 'none';
     toggleLoading(true);
 
     try {
@@ -210,38 +274,41 @@ async function login() {
 
         const data = await res.json();
 
+        // Check if user object exists in the response
         if (data?.message?.email) {
             const u = data.message;
 
+            // ✅ Save user details for form pre-filling
             localStorage.setItem("email", u.email || "");
             localStorage.setItem("fullname", u.fullname || "");
             localStorage.setItem("mobileno", u.mobileno || "");
             localStorage.setItem("city", u.city || "");
             localStorage.setItem("state", u.state || "");
             localStorage.setItem("country", u.country || "");
-   try {
-        await fetch("https://adecon-backend-8y4v.onrender.com/api/user/activity", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({
-                loginTime: true
-            }),
-            credentials: "include"
-        });
-         location.href = "home.html";
-    } catch (err) {
- errorMsg.style.display = 'block';
-        errorMsg.innerText = "Server error";
-    }
+
+            // ✅ Track Login Activity
+            try {
+                await fetch("https://adecon-backend-8y4v.onrender.com/api/user/activity", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ loginTime: true }),
+                    credentials: "include"
+                });
+                
+                // Redirect after successful tracking
+                location.href = "home.html";
+            } catch (err) {
+                console.error("Activity tracking failed", err);
+                // Redirect anyway so the user isn't stuck
+                location.href = "home.html";
+            }
            
         } else {
-            errorMsg.style.display = 'block';
-            errorMsg.innerText = "Invalid User";
+            showError("Invalid User. Please register first.");
         }
 
-    } catch {
-        errorMsg.style.display = 'block';
-        errorMsg.innerText = "Server error";
+    } catch (err) {
+        showError("Server error. Please try again.");
     }
 
     toggleLoading(false);
@@ -251,6 +318,11 @@ function toggleLoading(state) {
     loginBtn.disabled = state;
     btnText.style.opacity = state ? "0.7" : "1";
     btnLoader.style.display = state ? "inline-block" : "none";
+}
+
+function showError(msg) {
+    errorMsg.style.display = 'block';
+    errorMsg.innerText = msg;
 }
 </script>
 

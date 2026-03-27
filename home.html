@@ -3,245 +3,281 @@
 <head>
 <meta charset="UTF-8" />
 <title>Adecon 2026 - Home</title>
-<meta name="viewport" content="width=device-width, initial-scale=1.0" />
-
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
 <style>
-* { margin:0; padding:0; box-sizing:border-box; }
-body { overflow:hidden; font-family: Arial, sans-serif; }
+/* CSS Reset & Core Layout */
+* { 
+    margin: 0; 
+    padding: 0; 
+    box-sizing: border-box; 
+    font-family: 'Poppins', Arial, sans-serif; 
+}
 
-/* 🔐 Loader */
+html, body { 
+    height: 100%; 
+    width: 100%; 
+    overflow: hidden; 
+    background: #000;
+    /* Prevent bounce/scroll on mobile */
+    overscroll-behavior: none; 
+}
+
+/* Loader */
 #authLoader {
-  position:fixed;
-  inset:0;
-  background:#0f172a;
-  display:flex;
-  justify-content:center;
-  align-items:center;
-  z-index:9999;
-  color:white;
+    position: fixed;
+    inset: 0;
+    background: #0f172a;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 9999;
+    color: white;
 }
-area {
-  cursor: pointer;
-}
+
 .spinner {
-  width:50px;
-  height:50px;
-  border:5px solid rgba(255,255,255,0.2);
-  border-top:5px solid #38bdf8;
-  border-radius:50%;
-  animation:spin 1s linear infinite;
+    width: 40px;
+    height: 40px;
+    border: 4px solid rgba(255,255,255,0.1);
+    border-top: 4px solid #38bdf8;
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
 }
 
-@keyframes spin {
-  to { transform: rotate(360deg); }
+@keyframes spin { to { transform: rotate(360deg); } }
+
+/* Orientation Warning */
+#portraitWarning {
+    position: fixed;
+    inset: 0;
+    background: #000;
+    color: white;
+    display: none;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    z-index: 9998;
+    text-align: center;
+    padding: 30px;
 }
 
-/* Main */
-.container {
-  position: relative;
-  width: 100vw;
-  height: 100vh;
+/* Image Container - The Magic Sauce */
+.image-wrapper {
+    position: relative;
+    width: 100vw;
+    /* 100dvh accounts for mobile browser address bars dynamically */
+    height: 100vh;
+    height: 100dvh; 
+    overflow: hidden;
+    background: #000;
 }
 
-.container img {
-  width:100%;
-  height:100%;
-  object-fit:cover;
+#lobby-image {
+    width: 100%;
+    height: 100%;
+    display: block;
+    /* Forces the image to squash/stretch to the EXACT viewport dimensions */
+    object-fit: fill; 
 }
 
-/* Modal */
+/* Hotspots / Red Dots */
+.hotspot-fixed {
+    position: absolute;
+    width: 14px;
+    height: 14px;
+    border-radius: 50%;
+    pointer-events: none;
+    background: rgba(220, 38, 38, 0.8);
+    box-shadow: 0 0 15px rgba(220, 38, 38, 1);
+    transform: translate(-50%, -50%);
+    animation: pulse 2s infinite ease-in-out;
+    z-index: 10;
+}
+
+@keyframes pulse {
+    0% { transform: translate(-50%, -50%) scale(1); opacity: 0.9; }
+    50% { transform: translate(-50%, -50%) scale(1.6); opacity: 0.4; }
+    100% { transform: translate(-50%, -50%) scale(1); opacity: 0.9; }
+}
+
+/* Modal Styling */
 .modal {
-  position:fixed;
-  inset:0;
-  background:rgba(0,0,0,0.7);
-  display:none;
-  justify-content:center;
-  align-items:center;
-  z-index:1000;
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.85);
+    display: none;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
 }
 
 .modal-content {
-  width:85%;
-  height:85%;
-  background:#fff;
-  border-radius:10px;
-  overflow:hidden;
-  position:relative;
+    width: 92%;
+    height: 85%;
+    background: #fff;
+    border-radius: 12px;
+    overflow: hidden;
+    position: relative;
 }
 
 .modal-content iframe {
-  width:100%;
-  height:100%;
-  border:none;
+    width: 100%;
+    height: 100%;
+    border: none;
 }
 
 .close-btn {
-  position:absolute;
-  top:10px;
-  right:15px;
-  background:red;
-  color:#fff;
-  border:none;
-  padding:6px 12px;
-  cursor:pointer;
+    position: absolute;
+    top: 12px;
+    right: 15px;
+    background: #ef4444;
+    color: #fff;
+    border: none;
+    padding: 7px 10px;
+    cursor: pointer;
+    font-weight: 600;
+    border-radius: 6px;
+    z-index: 1001;
 }
 </style>
 </head>
 
 <body>
 
-<!-- 🔐 Loader -->
 <div id="authLoader">
-  <div style="text-align:center;">
-    <div class="spinner"></div>
-    <p style="margin-top:10px; opacity:0.8;">Authenticating...</p>
-  </div>
+    <div style="text-align:center;">
+        <div class="spinner"></div>
+        <p style="margin-top:15px; font-size:14px; letter-spacing:1px;">LOADING ADECON...</p>
+    </div>
 </div>
 
-<!-- 🌐 Main UI -->
-<div class="container">
-  <img
-    src="https://s3.ap-south-1.amazonaws.com/cdn2.onference.in/testepisodethumbnail/Lobby+Design_2.png"
-    usemap="#image-map"
-  />
-
-  <map name="image-map">
-
-    <!-- Exhibition -->
-    <area href="exhibition.html" coords="193,400,720,750" shape="rect">
-
-    <!-- Auditorium -->
-    <area href="auditorium.html" coords="1185,400,1730,750" shape="rect">
-
-    <!-- Day 1 Agenda -->
-    <area class="agenda-area"
-      data-url="https://s3.ap-south-1.amazonaws.com/cdn2.onference.in/testepisodethumbnail/Agenda+DAy+1.pdf"
-      coords="554,880,707,1025" shape="rect">
-
-    <!-- Day 2 Agenda -->
-    <area class="agenda-area"
-      data-url="https://s3.ap-south-1.amazonaws.com/cdn2.onference.in/testepisodethumbnail/Agenda+DAy+2.pdf"
-      coords="1219,865,1361,1025" shape="rect">
-
-    <!-- Help Desk -->
-    <area id="askArea" coords="768,670,1161,950" shape="rect">
-
-  </map>
+<div id="portraitWarning">
+    <div style="font-size: 50px; margin-bottom: 20px;">🔄</div>
+    <h2>Landscape Mode Required</h2>
+    <p style="margin-top:10px; opacity:0.8;">Please rotate your device to view the lobby.</p>
 </div>
 
-<!-- 📄 Modal -->
+<div class="image-wrapper" id="lobby-container">
+    <img
+        id="lobby-image"
+        src="https://s3.ap-south-1.amazonaws.com/cdn2.onference.in/testepisodethumbnail/OneDrive_1_3-27-2026/Lobby+Final.png"
+        usemap="#image-map"
+        alt="Lobby"
+    />
+
+    <div class="hotspot-fixed" data-x="470" data-y="469"></div>
+    <div class="hotspot-fixed" data-x="1479" data-y="468"></div>
+    <div class="hotspot-fixed" data-x="631" data-y="851"></div>
+    <div class="hotspot-fixed" data-x="1292" data-y="837"></div>
+</div>
+
+<map name="image-map">
+    <area alt="Exhibition" href="exhibition.html" coords="185,435,710,740" shape="rect">
+    <area alt="Auditorium" href="auditorium.html" coords="1190,424,1719,733" shape="rect">
+    <area alt="Help Desk" href="#" id="askArea" coords="756,661,1168,895" shape="rect">
+    <area alt="Agenda Day 1" href="#" class="agenda-area" data-url="https://s3.ap-south-1.amazonaws.com/cdn2.onference.in/testepisodethumbnail/OneDrive_1_3-27-2026/Agenda+Day+1.pdf" coords="554,829,710,965" shape="rect">
+    <area alt="Agenda Day 2" href="#" class="agenda-area" data-url="https://s3.ap-south-1.amazonaws.com/cdn2.onference.in/testepisodethumbnail/OneDrive_1_3-27-2026/Agenda+Day+2.pdf" coords="1209,819,1368,961" shape="rect">
+</map>
+
 <div class="modal" id="modal">
-  <div class="modal-content">
-    <button class="close-btn" onclick="closeModal()">✖</button>
-    <iframe id="modalFrame"></iframe>
-  </div>
+    <div class="modal-content">
+        <button class="close-btn" onclick="closeModal()">✕ </button>
+        <iframe id="modalFrame"></iframe>
+    </div>
 </div>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/image-map-resizer/1.0.10/js/imageMapResizer.min.js"></script>
 
 <script>
+const ORIG_W = 1920;
+const ORIG_H = 1080;
 
-/* 🔐 AUTH */
+/* ── Auth Check ────────────────────────────────────────────────────────── */
 async function checkAuth() {
-  try {
-    const res = await fetch("https://adecon-backend-8y4v.onrender.com/api/auth/status", {
-      credentials: "include"
+    try {
+        const res = await fetch("https://adecon-backend-8y4v.onrender.com/api/auth/status", { credentials: "include" });
+        const data = await res.json();
+        if (data.message === "User authenticated") {
+            document.getElementById("authLoader").style.display = "none";
+            return true;
+        }
+    } catch (e) { console.error("Auth error", e); }
+    window.location.href = "login.html";
+    return false;
+}
+
+/* ── Hotspot Syncing ───────────────────────────────────────────────────── */
+function syncUI() {
+    const img = document.getElementById("lobby-image");
+    const dots = document.querySelectorAll(".hotspot-fixed");
+    
+    // Use getBoundingClientRect for precise rendered pixel values
+    const rect = img.getBoundingClientRect();
+    const scaleX = rect.width / ORIG_W;
+    const scaleY = rect.height / ORIG_H;
+
+    dots.forEach(dot => {
+        const x = parseFloat(dot.dataset.x) * scaleX;
+        const y = parseFloat(dot.dataset.y) * scaleY;
+        dot.style.left = `${x}px`;
+        dot.style.top = `${y}px`;
     });
 
-    const data = await res.json();
-
-    if (data.message === "User authenticated") {
-      hideLoader();
-      return true;
-    } else {
-      redirectToLogin();
+    // Re-trigger the image map resizer library
+    if (typeof imageMapResize === 'function') {
+        imageMapResize();
     }
-  } catch {
-    redirectToLogin();
-  }
 }
 
-function hideLoader() {
-  document.getElementById("authLoader").style.display = "none";
+/* ── Orientation Handler ──────────────────────────────────────────────── */
+function handleOrientation() {
+    const isPortrait = window.innerHeight > window.innerWidth;
+    document.getElementById("portraitWarning").style.display = isPortrait ? "flex" : "none";
+    document.getElementById("lobby-container").style.visibility = isPortrait ? "hidden" : "visible";
+    
+    if (!isPortrait) {
+        // Delay slightly to ensure browser has updated layout
+        setTimeout(syncUI, 150);
+    }
 }
 
-function redirectToLogin() {
-  window.location.href = "login.html";
-}
-
-/* 📄 Modal */
+/* ── Interaction Helpers ──────────────────────────────────────────────── */
 function openModal(url) {
-  const modal = document.getElementById("modal");
-  const frame = document.getElementById("modalFrame");
-
-  frame.src = url;
-  modal.style.display = "flex";
+    document.getElementById("modalFrame").src = url;
+    document.getElementById("modal").style.display = "flex";
 }
 
 function closeModal() {
-  document.getElementById("modal").style.display = "none";
-  document.getElementById("modalFrame").src = "";
+    document.getElementById("modal").style.display = "none";
+    document.getElementById("modalFrame").src = "";
 }
 
-/* Agenda */
-function attachAgendaHandlers() {
-  document.querySelectorAll("area.agenda-area").forEach(area => {
-    area.addEventListener("click", e => {
-      e.preventDefault();
-      openModal(area.dataset.url);
-    });
-  });
-}
-
-/* 🧠 Build Prefilled Google Form URL */
-function buildPrefilledFormURL() {
-  const email = encodeURIComponent(localStorage.getItem("email") || "");
-  const fullname = encodeURIComponent(localStorage.getItem("fullname") || "");
-  const mobileno = encodeURIComponent(localStorage.getItem("mobileno") || "");
-  const city = encodeURIComponent(localStorage.getItem("city") || "");
-  const state = encodeURIComponent(localStorage.getItem("state") || "");
-  const country = encodeURIComponent(localStorage.getItem("country") || "");
-
-  return `https://docs.google.com/forms/d/e/1FAIpQLSfe6pbQgIeUB9IuiiJ-vq6xpTIcpMSxiOIyhk8MI-2H8RbjYw/viewform?usp=pp_url
-  &entry.543970567=${fullname}
-  &entry.385469749=
-  &entry.57364819=${mobileno}
-  &entry.880130637=${email}
-  &entry.342698872=${city}
-  &entry.745321921=${state}
-  &entry.1903990537=${country}`.replace(/\s+/g, "");
-}
-
-/* Help Desk */
-function setupAskFeature() {
-  const askArea = document.getElementById("askArea");
-
-  askArea.addEventListener("click", e => {
-    e.preventDefault();
-    const url = buildPrefilledFormURL();
-    openModal(url);
-  });
-}
-
-/* ESC close */
-window.addEventListener("keydown", e => {
-  if (e.key === "Escape") closeModal();
-});
-
-/* INIT */
+/* ── Initialization ────────────────────────────────────────────────────── */
 document.addEventListener("DOMContentLoaded", async () => {
-  const isAuth = await checkAuth();
-  if (!isAuth) return;
+    if (!await checkAuth()) return;
 
-  attachAgendaHandlers();
-  setupAskFeature();
+    // Handle Agenda Clicks
+    document.querySelectorAll(".agenda-area").forEach(area => {
+        area.onclick = (e) => { e.preventDefault(); openModal(area.dataset.url); };
+    });
+
+    // Handle Help Desk
+    document.getElementById("askArea").onclick = (e) => {
+        e.preventDefault();
+        const encode = k => encodeURIComponent(localStorage.getItem(k) || "");
+        const url = `https://docs.google.com/forms/d/e/1FAIpQLSfe6pbQgIeUB9IuiiJ-vq6xpTIcpMSxiOIyhk8MI-2H8RbjYw/viewform?usp=pp_url&entry.543970567=${encode("fullname")}&entry.385469749=&entry.57364819=${encode("mobileno")}&entry.880130637=${encode("email")}&entry.342698872=${encode("city")}&entry.745321921=${encode("state")}&entry.1903990537=${encode("country")}`;
+        openModal(url);
+    };
+
+    handleOrientation();
+    window.addEventListener("resize", syncUI);
+    window.addEventListener("orientationchange", () => setTimeout(handleOrientation, 300));
 });
 
-/* Responsive fix */
-window.onload = function() {
-  imageMapResize();
-};
+// Final safety check for image load
+document.getElementById("lobby-image").onload = syncUI;
 
+// Close modal on ESC key
+window.addEventListener("keydown", e => { if (e.key === "Escape") closeModal(); });
 </script>
 
 </body>
