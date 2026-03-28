@@ -414,9 +414,12 @@ function buildFormURL() {
 function showFallback() {
     const img = document.getElementById("fallbackImage");
     const video = document.getElementById("videoPlayer");
-
+    const playBtn = document.getElementById("playOverlay");
+    const pauseBtn = document.getElementById("pauseOverlay");
 if (img) {
         img.style.display = "block";
+         if (playBtn) playBtn.classList.add("hidden");
+    if (pauseBtn) pauseBtn.classList.add("hidden");
     }
     if (video) {
         video.classList.add("hidden");
